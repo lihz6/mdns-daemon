@@ -12,7 +12,11 @@
 #define DNSFLAG_RESPD_NOT_IMPLEMENTED htons(0x1104)
 #define DNSFLAG_RESPD_REFUSED htons(0x1105)
 
-#define XXCOUNT(count) htons(count)
+#define DNSFLAG_RESPD_MESSAGE_BIT htons(0x1000)
+
+#define ENCOUNT(count) htons(count)
+#define DECOUNT(count) ntohs(count)
+
 // DNS header structure
 // #pragma pack(push, 1)
 struct dns_header_t

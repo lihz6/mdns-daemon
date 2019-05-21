@@ -34,7 +34,7 @@ unsigned char *init_dns_header(unsigned char *buffer)
     /**
      * questions count
      */
-    dns_header->QDCOUNT = XXCOUNT(1);
+    dns_header->QDCOUNT = ENCOUNT(1);
     // dns_header->QDCOUNT = 2019;
     /**
      * answers count

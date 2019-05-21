@@ -93,25 +93,29 @@ int main(void)
             continue;
         }
         pull_dns_header(buffer, &dns_header);
-        if (dns_header->DNSFLAG & DNSFLAG_QUERY == DNSFLAG_QUERY)
-        {
-            printf("This is query message\n");
-        }
-        {
-            printf("This is one question\n");
-        }
-        print_buffer(buffer, nread);
 
-        char host[NI_MAXHOST], service[NI_MAXSERV];
-        s = getnameinfo((struct sockaddr *)&peer_addr, peer_addr_len, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
-        if (s == 0)
+        if (dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT)
         {
-            printf("Received %zd bytes from %s:%s\n", nread, host, service);
+            continue; // No interests in response messages
+        }
+
+        printf("Got a query message\n");
+
+        print_buffer(buffer, nread);
+        char ipstr[INET6_ADDRSTRLEN];
+
+        if (peer_addr.ss_family == AF_INET)
+        {
+            struct sockaddr_in *s = (struct sockaddr_in *)&peer_addr;
+            inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
         }
         else
         {
-            fprintf(stderr, "getnameinfo: %s\n", gai_strerror(s));
+            struct sockaddr_in6 *s = (struct sockaddr_in6 *)&peer_addr;
+            inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
         }
+
+        printf("Received %zd bytes from %s\n", nread, ipstr);
 
         if (sendto(sfd, buffer, nread, 0, (struct sockaddr *)&peer_addr, peer_addr_len) != nread)
         {
