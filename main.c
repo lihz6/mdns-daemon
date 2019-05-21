@@ -4,13 +4,15 @@
 #include <stdio.h>
 #include <netdb.h>
 
+#include <unistd.h>
+
 #define LOCALHOST "127.0.0.1"
 #define DOT_LOCAL ".local"
 
 // read `/etc/hosts` file
-int main(void)
+void etc_hosts(void)
 {
-    char addr[INET_ADDRSTRLEN], **h_list, *h_name;
+    char addr[INET_ADDRSTRLEN], *h_name;
     struct hostent *hent;
     size_t hlen;
     inet_pton(AF_INET, LOCALHOST, addr);
@@ -22,7 +24,6 @@ int main(void)
             continue;
         }
         h_name = hent->h_name;
-        h_list = hent->h_aliases;
         do
         {
             hlen = strlen(h_name) - strlen(DOT_LOCAL);
@@ -30,7 +31,30 @@ int main(void)
             {
                 printf("h_name: %s\n", h_name);
             }
-        } while (h_name = *h_list++);
+        } while (h_name = *hent->h_aliases++);
     }
     endhostent();
 }
+
+void query_ips(int af)
+{
+    char host[NI_MAXHOST], addr[INET6_ADDRSTRLEN], *h_addr;
+    gethostname(host, NI_MAXHOST);
+    struct hostent *hent;
+    hent = gethostbyname2(host, af);
+    while (h_addr = *hent->h_addr_list++)
+    {
+        inet_ntop(hent->h_addrtype, h_addr, addr, INET6_ADDRSTRLEN);
+        printf("h_addr: %s\n", addr);
+    }
+}
+
+int main(void)
+{
+    etc_hosts();
+    query_ips(AF_INET);
+    query_ips(AF_INET6);
+}
+
+// read hosts
+// get hostip
