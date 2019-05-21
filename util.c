@@ -12,28 +12,29 @@ unsigned char *init_dns_header(unsigned char *buffer)
      * 0: this is a query message
      * 1: this is a response message
      */
-    dns_header->QR = 0;
-    dns_header->OPCODE = 0;
+    // dns_header->QR = 0;
+    // dns_header->OPCODE = 0;
 
-    dns_header->AA = 0;
-    dns_header->TC = 0;
-    dns_header->RD = 1;
-    dns_header->RA = 0;
-    dns_header->Z = 0;
+    // dns_header->AA = 0;
+    // dns_header->TC = 0;
+    // dns_header->RD = 1;
+    // dns_header->RA = 0;
+    // dns_header->Z = 0;
     /**
      * of responses:
      *   0: No error
      *   1: Format error
-     *   2: Servier failure
+     *   2: Server failure
      *   3: Name error
      *   4: Not Implemented
      *   5: Refused
      */
-    dns_header->RCODE = 0;
+    // dns_header->RCODE = 0;
+    dns_header->DNSFLAG = DNSFLAG_QUERY;
     /**
      * questions count
      */
-    dns_header->QDCOUNT = htons(1);
+    dns_header->QDCOUNT = XXCOUNT(1);
     // dns_header->QDCOUNT = 2019;
     /**
      * answers count

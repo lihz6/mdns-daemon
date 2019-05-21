@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <netdb.h>
 #include <errno.h>
+#include "util.h"
 
-#define BUF_SIZE 2048
+#define BUFFER_SIZE 2048
 
 int open_socket()
 {
@@ -53,14 +54,30 @@ int open_socket()
     return sfd;
 }
 
+void print_buffer(const char *buffer, size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        printf("%02X", buffer[i]);
+        if (i % 2)
+        {
+            putchar('\n');
+        }
+        else
+        {
+            putchar(' ');
+        }
+    }
+}
+
 int main(void)
 {
     int sfd, s;
     struct sockaddr_storage peer_addr;
     socklen_t peer_addr_len;
     ssize_t nread;
-    char buf[BUF_SIZE];
-
+    unsigned char buffer[BUFFER_SIZE];
+    struct nds_header_t *dns_header;
     if (0 > (sfd = open_socket()))
     {
         fprintf(stderr, "Could not open\n");
@@ -70,26 +87,35 @@ int main(void)
     for (;;)
     {
         peer_addr_len = sizeof(struct sockaddr_storage);
-        nread = recvfrom(sfd, buf, BUF_SIZE, 0, (struct sockaddr *)&peer_addr, &peer_addr_len);
+        nread = recvfrom(sfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&peer_addr, &peer_addr_len);
         if (0 > nread)
         {
             continue;
         }
+        pull_dns_header(buffer, &dns_header);
+        if (dns_header->DNSFLAG & DNSFLAG_QUERY == DNSFLAG_QUERY)
+        {
+            printf("This is query message\n");
+        }
+        {
+            printf("This is one question\n");
+        }
+        print_buffer(buffer, nread);
 
         char host[NI_MAXHOST], service[NI_MAXSERV];
-
-        s = getnameinfo((struct sockaddr *)&peer_addr,
-                        peer_addr_len, host, NI_MAXHOST,
-                        service, NI_MAXSERV, NI_NUMERICSERV);
+        s = getnameinfo((struct sockaddr *)&peer_addr, peer_addr_len, host, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
         if (s == 0)
-            printf("Received %zd bytes from %s:%s\n",
-                   nread, host, service);
+        {
+            printf("Received %zd bytes from %s:%s\n", nread, host, service);
+        }
         else
+        {
             fprintf(stderr, "getnameinfo: %s\n", gai_strerror(s));
+        }
 
-        if (sendto(sfd, buf, nread, 0,
-                   (struct sockaddr *)&peer_addr,
-                   peer_addr_len) != nread)
+        if (sendto(sfd, buffer, nread, 0, (struct sockaddr *)&peer_addr, peer_addr_len) != nread)
+        {
             fprintf(stderr, "Error sending response\n");
+        }
     }
 }

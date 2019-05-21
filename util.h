@@ -2,20 +2,32 @@
 #define _MDNS_UTIL_H
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
+#define DNSFLAG_QUERY htons(0x0100)
+#define DNSFLAG_RESPD_NO_ORROR htons(0x1100)
+#define DNSFLAG_RESPD_FORMAT_ORROR htons(0x1101)
+#define DNSFLAG_RESPD_SERVER_ORROR htons(0x1102)
+#define DNSFLAG_RESPD_NAME_ORROR htons(0x1103)
+#define DNSFLAG_RESPD_NOT_IMPLEMENTED htons(0x1104)
+#define DNSFLAG_RESPD_REFUSED htons(0x1105)
+
+#define XXCOUNT(count) htons(count)
 // DNS header structure
-#pragma pack(push, 1)
+// #pragma pack(push, 1)
 struct nds_header_t
 {
     uint16_t ID;
-    unsigned char QR : 1;
-    unsigned char OPCODE : 4;
-    unsigned char AA : 1;
-    unsigned char TC : 1;
-    unsigned char RD : 1;
-    unsigned char RA : 1;
-    unsigned char Z : 3;
-    unsigned char RCODE : 4;
+    // unsigned char QR : 1;
+    // unsigned char OPCODE : 4;
+    // unsigned char AA : 1;
+    // unsigned char TC : 1;
+    // unsigned char RD : 1;
+
+    // unsigned char RA : 1;
+    // unsigned char Z : 3;
+    // unsigned char RCODE : 4;
+    uint16_t DNSFLAG;
     uint16_t QDCOUNT; // number of question entries
     uint16_t ANCOUNT; // number of answer entries
     uint16_t NSCOUNT; // number of authority entries
@@ -39,7 +51,7 @@ struct answer_t
     uint32_t TTL;
     uint16_t RDLENGTH;
 };
-#pragma(pop)
+// #pragma(pop)
 
 extern unsigned char *init_dns_header(unsigned char *buffer);
 
