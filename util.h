@@ -15,7 +15,7 @@
 #define XXCOUNT(count) htons(count)
 // DNS header structure
 // #pragma pack(push, 1)
-struct nds_header_t
+struct dns_header_t
 {
     uint16_t ID;
     // unsigned char QR : 1;
@@ -55,9 +55,9 @@ struct answer_t
 
 extern unsigned char *init_dns_header(unsigned char *buffer);
 
-extern unsigned char *push_dns_header(unsigned char *buffer, const struct nds_header_t *dns_header);
+extern unsigned char *push_dns_header(unsigned char *buffer, const struct dns_header_t *dns_header);
 
-extern const unsigned char *pull_dns_header(const unsigned char *buffer, struct nds_header_t **dns_header);
+extern const unsigned char *pull_dns_header(const unsigned char *buffer, struct dns_header_t **dns_header);
 
 // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 // | 1  1|                OFFSET                   |

@@ -6,7 +6,7 @@
 
 unsigned char *init_dns_header(unsigned char *buffer)
 {
-    struct nds_header_t *dns_header = (struct nds_header_t *)buffer;
+    struct dns_header_t *dns_header = (struct dns_header_t *)buffer;
     dns_header->ID = getpid();
     /**
      * 0: this is a query message
@@ -42,19 +42,19 @@ unsigned char *init_dns_header(unsigned char *buffer)
     dns_header->ANCOUNT = 0;
     dns_header->NSCOUNT = 0;
     dns_header->ARCOUNT = 0;
-    return buffer + sizeof(struct nds_header_t);
+    return buffer + sizeof(struct dns_header_t);
 }
 
-unsigned char *push_dns_header(unsigned char *buffer, const struct nds_header_t *dns_header)
+unsigned char *push_dns_header(unsigned char *buffer, const struct dns_header_t *dns_header)
 {
-    memcpy(buffer, dns_header, sizeof(struct nds_header_t));
-    return buffer + sizeof(struct nds_header_t);
+    memcpy(buffer, dns_header, sizeof(struct dns_header_t));
+    return buffer + sizeof(struct dns_header_t);
 }
 
-const unsigned char *pull_dns_header(const unsigned char *buffer, struct nds_header_t **dns_header)
+const unsigned char *pull_dns_header(const unsigned char *buffer, struct dns_header_t **dns_header)
 {
-    *dns_header = (struct nds_header_t *)buffer;
-    return buffer + sizeof(struct nds_header_t);
+    *dns_header = (struct dns_header_t *)buffer;
+    return buffer + sizeof(struct dns_header_t);
 }
 
 size_t offset_hostname(const unsigned char *buffer)

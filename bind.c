@@ -77,7 +77,7 @@ int main(void)
     socklen_t peer_addr_len;
     ssize_t nread;
     unsigned char buffer[BUFFER_SIZE];
-    struct nds_header_t *dns_header;
+    struct dns_header_t *dns_header;
     if (0 > (sfd = open_socket()))
     {
         fprintf(stderr, "Could not open\n");
