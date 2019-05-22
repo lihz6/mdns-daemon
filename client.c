@@ -58,8 +58,8 @@ int main(void)
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_port = htons(5353);
     sock_addr.sin_addr.s_addr = INADDR_ANY;
-    readsize = 28;
-    if (readsize != sendto(sockfd, query_message, readsize, 0, (struct sockaddr *)&sock_addr, sizeof(sock_addr)))
+    readsize = 28, addr_len = sizeof(struct sockaddr_in);
+    if (readsize != sendto(sockfd, query_message, readsize, 0, (struct sockaddr *)&sock_addr, addr_len))
     {
         perror("sendto failed");
         exit(EXIT_FAILURE);

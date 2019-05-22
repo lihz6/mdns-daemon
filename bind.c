@@ -74,7 +74,7 @@ int main(void)
 {
     int sockfd, s;
     struct sockaddr_storage peer_addr;
-    socklen_t peer_addr_len;
+    socklen_t addr_len;
     ssize_t readsize;
     unsigned char buffer[BUFFERSIZE];
     char peer_ip[INET6_ADDRSTRLEN];
@@ -87,8 +87,8 @@ int main(void)
 
     for (;;)
     {
-        peer_addr_len = sizeof(struct sockaddr_storage);
-        readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &peer_addr_len);
+        addr_len = sizeof(struct sockaddr_storage);
+        readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &addr_len);
         if (0 > readsize)
         {
             continue;
@@ -115,7 +115,7 @@ int main(void)
 
         print_buffer(buffer, readsize);
 
-        if (sendto(sockfd, buffer, readsize, 0, (struct sockaddr *)&peer_addr, peer_addr_len) != readsize)
+        if (sendto(sockfd, buffer, readsize, 0, (struct sockaddr *)&peer_addr, addr_len) != readsize)
         {
             fprintf(stderr, "Error sending response\n");
         }
