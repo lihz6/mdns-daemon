@@ -17,3 +17,9 @@ test: test.o
 
 test.o: test.c host.c host.h
 	gcc test.c host.c host.h -o test.o
+
+client: client.o
+	./client.o
+
+client.o: client.c
+	gcc client.c -o client.o
