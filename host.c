@@ -7,8 +7,6 @@
 #include <netdb.h>
 #include "host.h"
 
-#define DOMAIN_SEPERATORS "_.-"
-
 bool is_global_hostname(const char *hostname)
 {
     if (strstr(hostname, "localhost") || strstr(hostname, "loopback") || strstr(hostname, "localdomain"))
@@ -60,7 +58,7 @@ void global_hostlist(char *hostlist, size_t hostlist_len)
 
 bool lookup_hostname(const char *const hostlist, const char *const hostname)
 {
-    size_t start, dlen, end = 0;
+    size_t start, end = 0;
     const char *hoststop;
     while (hostlist[end])
     {
