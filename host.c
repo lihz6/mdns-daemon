@@ -69,7 +69,7 @@ bool lookup_hostname(const char *const hostlist, const char *const hostname)
             return true;
         }
         hoststop = hostname;
-        while (strchr("_.-", hostlist[start]) && (hoststop = strpbrk(hoststop + 1, "_.-")))
+        while (strchr(".-", hostlist[start]) && (hoststop = strpbrk(hoststop + 1, ".-")))
         {
             if (strcmp(hostlist + start++, hoststop) == 0)
             {
