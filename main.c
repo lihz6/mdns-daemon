@@ -6,16 +6,30 @@
 
 #include <unistd.h>
 
-#define LOCALHOST "127.0.0.1"
-#define DOT_LOCAL ".local"
+bool valid_hostname(const char *hostname)
+{
+    if (strstr(hostname, "localhost") || strstr(hostname, "loopback") || strstr(hostname, "localdomain"))
+    {
+        return false;
+    }
+    for (;;)
+    {
+        switch (*hostname++)
+        {
+        case '\0':
+            return false;
+        case '.':
+            return true;
+        }
+    }
+}
 
 // read `/etc/hosts` file
 void etc_hosts(void)
 {
     char addr[INET_ADDRSTRLEN], *h_name;
     struct hostent *hent;
-    size_t hlen;
-    inet_pton(AF_INET, LOCALHOST, addr);
+    inet_pton(AF_INET, "127.0.0.1", addr);
     sethostent(true);
     while (hent = gethostent())
     {
@@ -26,8 +40,7 @@ void etc_hosts(void)
         h_name = hent->h_name;
         do
         {
-            hlen = strlen(h_name) - strlen(DOT_LOCAL);
-            if (hlen > 0 && strcmp(h_name + hlen, DOT_LOCAL) == 0)
+            if (valid_hostname(h_name))
             {
                 printf("h_name: %s\n", h_name);
             }
