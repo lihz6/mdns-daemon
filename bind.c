@@ -77,6 +77,7 @@ int main(void)
     socklen_t peer_addr_len;
     ssize_t nread;
     unsigned char buffer[BUFFER_SIZE];
+    char peer_ip[INET6_ADDRSTRLEN];
     struct dns_header_t *dns_header;
     if (0 > (sfd = open_socket()))
     {
@@ -92,6 +93,7 @@ int main(void)
         {
             continue;
         }
+
         pull_dns_header(buffer, &dns_header);
 
         if (dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT)
@@ -99,23 +101,19 @@ int main(void)
             continue; // No interests in response messages
         }
 
-        printf("Got a query message\n");
-
-        print_buffer(buffer, nread);
-        char ipstr[INET6_ADDRSTRLEN];
-
         if (peer_addr.ss_family == AF_INET)
         {
             struct sockaddr_in *s = (struct sockaddr_in *)&peer_addr;
-            inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
+            inet_ntop(AF_INET, &s->sin_addr, peer_ip, sizeof peer_ip);
         }
         else
         {
             struct sockaddr_in6 *s = (struct sockaddr_in6 *)&peer_addr;
-            inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
+            inet_ntop(AF_INET6, &s->sin6_addr, peer_ip, sizeof peer_ip);
         }
+        printf("Got %zd bytes query message from %s\n", nread, peer_ip);
 
-        printf("Received %zd bytes from %s\n", nread, ipstr);
+        print_buffer(buffer, nread);
 
         if (sendto(sfd, buffer, nread, 0, (struct sockaddr *)&peer_addr, peer_addr_len) != nread)
         {
