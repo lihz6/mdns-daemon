@@ -13,14 +13,10 @@ void print_buffer(const unsigned char *buffer, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
-        printf("%02X", buffer[i]);
+        printf(" %02X", buffer[i]);
         if (i % 2)
         {
             putchar('\n');
-        }
-        else
-        {
-            putchar(' ');
         }
     }
 }
@@ -30,13 +26,13 @@ int main(void)
     int sockfd;
     unsigned char buffer[BUFFERSIZE];
     // python3: ''.join(['\\' + hex(ord(c))[1:] for c in 'hostname'])
-    unsigned char query_message[] = "\xAA\xAA"
+    unsigned char query_message[] = "\x00\x00"
                                     "\x01\x00"
                                     "\x00\x01"
                                     "\x00\x00"
                                     "\x00\x00"
                                     "\x00\x00"
-                                    "\x06\x6c\x61\x77\x79\x6f\x6f\x05\x6c\x6f\x63\x61\x6c\x00"
+                                    "\x04\x6c\x69\x68\x7a\x05\x6c\x6f\x63\x61\x6c\x00"
                                     "\x00\x01"
                                     "\x00\x01";
     struct sockaddr_in sock_addr;
@@ -54,7 +50,7 @@ int main(void)
     // Filling server information
     sock_addr.sin_family = AF_INET;
     sock_addr.sin_port = htons(5353);
-    sock_addr.sin_addr.s_addr = INADDR_ANY;
+    sock_addr.sin_addr.s_addr = inet_addr("224.0.0.251");
     // mreq.imr_multiaddr.s_addr = inet_addr("224.0.0.251");
     // mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     // if (0 > setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))

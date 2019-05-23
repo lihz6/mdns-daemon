@@ -58,14 +58,10 @@ void print_buffer(const unsigned char *buffer, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
-        printf("%02X", buffer[i]);
+        printf(" %02X", buffer[i]);
         if (i % 2)
         {
             putchar('\n');
-        }
-        else
-        {
-            putchar(' ');
         }
     }
 }

@@ -16,10 +16,10 @@ bool is_global_hostname(const char *hostname)
     return strchr(hostname, '.') != NULL;
 }
 
-char *encode_hostname(char *hostlist, const char *hostname, size_t lentotal)
+char *encode_hostname(char *hostlist, const char *hostname, size_t limitlen)
 {
     char *position = hostlist++;
-    while (lentotal--)
+    while (--limitlen)
     {
         if (!(*hostlist++ = *hostname++))
         {
@@ -30,9 +30,9 @@ char *encode_hostname(char *hostlist, const char *hostname, size_t lentotal)
     return position;
 }
 
-void global_hostlist(char *hostlist, size_t hostlist_len)
+void global_hostlist(char *hostlist, const size_t listsize)
 {
-    const char *pinpoint = hostlist + hostlist_len - 2;
+    const char *pinpoint = hostlist + listsize - 1;
     char addr[INET_ADDRSTRLEN], *h_name;
     struct hostent *hent;
     inet_pton(AF_INET, "127.0.0.1", addr);
@@ -52,8 +52,13 @@ void global_hostlist(char *hostlist, size_t hostlist_len)
             }
         } while (h_name = *hent->h_aliases++);
     }
-    *hostlist = '\0';
     endhostent();
+    if (pinpoint - hostlist == listsize - 1)
+    {
+        gethostname(hostlist + 1, listsize - 1);
+        hostlist = encode_hostname(hostlist, strcat(hostlist + 1, ".local"), MIN(pinpoint - hostlist, 128));
+    }
+    *hostlist = '\0';
 }
 
 bool lookup_hostname(const char *const hostlist, const char *const hostname)
