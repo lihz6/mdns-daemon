@@ -36,6 +36,7 @@ int main(void)
                                     "\x00\x01"
                                     "\x00\x01";
     struct sockaddr_in sock_addr;
+    struct timeval timeout = {.tv_sec = 3, .tv_usec = 0};
     // struct ip_mreq mreq;
     socklen_t addr_len;
     ssize_t readsize;
@@ -44,6 +45,8 @@ int main(void)
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
+
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(struct timeval));
 
     memset(&sock_addr, 0, sizeof(struct sockaddr_in));
 
