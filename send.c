@@ -9,7 +9,7 @@
 
 #define BUFFERSIZE 2048
 
-void print_buffer(const char *buffer, size_t size)
+void print_buffer(const unsigned char *buffer, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
@@ -28,17 +28,17 @@ void print_buffer(const char *buffer, size_t size)
 int main(void)
 {
     int sockfd;
-    char buffer[BUFFERSIZE];
+    unsigned char buffer[BUFFERSIZE];
     // python3: ''.join(['\\' + hex(ord(c))[1:] for c in 'hostname'])
-    char query_message[] = "\xAA\xAA"
-                           "\x01\x00"
-                           "\x00\x01"
-                           "\x00\x00"
-                           "\x00\x00"
-                           "\x00\x00"
-                           "\x06\x6c\x61\x77\x79\x6f\x6f\x05\x6c\x6f\x63\x61\x6c\x00"
-                           "\x00\x01"
-                           "\x00\x01";
+    unsigned char query_message[] = "\xAA\xAA"
+                                    "\x01\x00"
+                                    "\x00\x01"
+                                    "\x00\x00"
+                                    "\x00\x00"
+                                    "\x00\x00"
+                                    "\x06\x6c\x61\x77\x79\x6f\x6f\x05\x6c\x6f\x63\x61\x6c\x00"
+                                    "\x00\x01"
+                                    "\x00\x01";
     struct sockaddr_in sock_addr;
     // struct ip_mreq mreq;
     socklen_t addr_len;
@@ -71,7 +71,7 @@ int main(void)
 
     printf("Hello message sent.\n");
 
-    readsize = recvfrom(sockfd, (char *)buffer, BUFFERSIZE, 0, (struct sockaddr *)&sock_addr, &addr_len);
+    readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&sock_addr, &addr_len);
     if (0 > readsize)
     {
         perror("recvfrom failed");

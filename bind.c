@@ -54,7 +54,7 @@ int open_socket()
     return sockfd;
 }
 
-void print_buffer(const char *buffer, size_t size)
+void print_buffer(const unsigned char *buffer, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
@@ -98,6 +98,7 @@ int main(void)
 
         if (dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT)
         {
+            printf("Got a response message\n");
             continue; // No interests in response messages
         }
 

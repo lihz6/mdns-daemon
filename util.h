@@ -5,14 +5,14 @@
 #include <stdbool.h>
 
 #define DNSFLAG_QUERY htons(0x0100)
-#define DNSFLAG_RESPD_NO_ORROR htons(0x1100)
-#define DNSFLAG_RESPD_FORMAT_ORROR htons(0x1101)
-#define DNSFLAG_RESPD_SERVER_ORROR htons(0x1102)
-#define DNSFLAG_RESPD_NAME_ORROR htons(0x1103)
-#define DNSFLAG_RESPD_NOT_IMPLEMENTED htons(0x1104)
-#define DNSFLAG_RESPD_REFUSED htons(0x1105)
+#define DNSFLAG_RESPD_NO_ORROR htons(0x8400)
+#define DNSFLAG_RESPD_FORMAT_ORROR htons(0x8401)
+#define DNSFLAG_RESPD_SERVER_ORROR htons(0x8402)
+#define DNSFLAG_RESPD_NAME_ORROR htons(0x8403)
+#define DNSFLAG_RESPD_NOT_IMPLEMENTED htons(0x8404)
+#define DNSFLAG_RESPD_REFUSED htons(0x8405)
 
-#define DNSFLAG_RESPD_MESSAGE_BIT htons(0x1000)
+#define DNSFLAG_RESPD_MESSAGE_BIT htons(0x8000)
 
 #define ENCOUNT(count) htons(count)
 #define DECOUNT(count) ntohs(count)
@@ -27,7 +27,6 @@ struct dns_header_t
     // unsigned char AA : 1;
     // unsigned char TC : 1;
     // unsigned char RD : 1;
-
     // unsigned char RA : 1;
     // unsigned char Z : 3;
     // unsigned char RCODE : 4;
