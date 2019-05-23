@@ -2,6 +2,7 @@
     "files.exclude": {
         "**/*.o": true,
         ".gitignore": true,
-        ".vscode": true
+        ".vscode": true,
+        "Makefile": true
     }
 }
