@@ -95,6 +95,13 @@ int main(void)
     }
     // query all available hostnames
     global_hostlist(hostlist, BUFFERSIZE);
+    printf("Respnod for:\n");
+    readsize = 0;
+    while (hostlist[readsize])
+    {
+        printf("    %s\n", hostlist + readsize + 1);
+        readsize += hostlist[readsize];
+    }
     // wait for messages
     for (;;)
     {

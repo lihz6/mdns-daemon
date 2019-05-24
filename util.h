@@ -17,6 +17,7 @@
 #define ENCOUNT(count) htons(count)
 #define DECOUNT(count) ntohs(count)
 
+#define QTYPE_AAAA htons(0x001C)
 #define QTYPE_A htons(0x0001)
 
 // DNS header structure
