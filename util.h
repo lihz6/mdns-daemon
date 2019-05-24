@@ -17,6 +17,8 @@
 #define ENCOUNT(count) htons(count)
 #define DECOUNT(count) ntohs(count)
 
+#define QTYPE_A htons(0x0001)
+
 // DNS header structure
 // #pragma pack(push, 1)
 struct dns_header_t
@@ -41,11 +43,6 @@ struct question_t
     uint16_t QTYPE;
     uint16_t QCLASS;
 };
-struct hostname_scheme_t
-{
-    unsigned char label : 2;
-    uint16_t offset : 14;
-};
 
 struct answer_t
 {
@@ -59,8 +56,6 @@ struct answer_t
 extern unsigned char *init_dns_header(unsigned char *buffer);
 
 extern unsigned char *push_dns_header(unsigned char *buffer, const struct dns_header_t *dns_header);
-
-extern const unsigned char *pull_dns_header(const unsigned char *buffer, struct dns_header_t **dns_header);
 
 // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 // | 1  1|                OFFSET                   |

@@ -25,14 +25,14 @@ int main(void)
 {
     int sockfd;
     unsigned char buffer[BUFFERSIZE];
-    // python3: ''.join(['\\' + hex(ord(c))[1:] for c in 'hostname'])
+    // python3 -c 'print("".join(["\\" + hex(ord(c))[1:] for c in "hostname"]))'
     unsigned char query_message[] = "\x00\x00"
                                     "\x01\x00"
                                     "\x00\x01"
                                     "\x00\x00"
                                     "\x00\x00"
                                     "\x00\x00"
-                                    "\x04\x6c\x69\x68\x7a\x05\x6c\x6f\x63\x61\x6c\x00"
+                                    "\x06\x67\x69\x74\x6c\x61\x62\x05\x6c\x6f\x63\x61\x6c\x00"
                                     "\x00\x01"
                                     "\x00\x01";
     struct sockaddr_in sock_addr;

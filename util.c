@@ -7,7 +7,7 @@
 unsigned char *init_dns_header(unsigned char *buffer)
 {
     struct dns_header_t *dns_header = (struct dns_header_t *)buffer;
-    dns_header->ID = getpid();
+    dns_header->ID = 0x1234;
     /**
      * 0: this is a query message
      * 1: this is a response message
@@ -51,20 +51,15 @@ unsigned char *push_dns_header(unsigned char *buffer, const struct dns_header_t 
     return buffer + sizeof(struct dns_header_t);
 }
 
-const unsigned char *pull_dns_header(const unsigned char *buffer, struct dns_header_t **dns_header)
-{
-    *dns_header = (struct dns_header_t *)buffer;
-    return buffer + sizeof(struct dns_header_t);
-}
-
 size_t offset_hostname(const unsigned char *buffer)
 {
-    struct hostname_scheme_t *scheme = (struct hostname_scheme_t *)buffer;
-    if (scheme->label == 0)
+    uint16_t *scheme = (uint16_t *)buffer;
+    uint16_t decode = ntohs(*scheme);
+    if (decode & 0xC000)
     {
-        return 0;
+        return decode & 0x3FFF;
     }
-    return scheme->offset;
+    return 0;
 }
 
 unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostname)
@@ -105,7 +100,7 @@ const unsigned char *pull_hostname(const unsigned char *buffer, unsigned char *h
     }
 }
 
-extern unsigned char *push_question(unsigned char *buffer, uint16_t QTYPE)
+unsigned char *push_question(unsigned char *buffer, uint16_t QTYPE)
 {
     struct question_t *question = (struct question_t *)buffer;
     /**

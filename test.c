@@ -60,10 +60,9 @@ void void_test_hostlist(void)
 
 int main(void)
 {
-    char a[100] = "abc";
-    if (a == strcat(a, "fsfs"))
+    char *puffer = "\0\1\3\4\4";
+    if (*(uint16_t *)puffer & htons(0x0001))
     {
-        printf("equel\n");
+        printf("yes: %d\n", ntohs(*(uint16_t *)puffer & htons(0x0001)));
     }
-    printf("%ld\n", strlen(strcat(a, "334")));
 }

@@ -8,8 +8,10 @@
 #include <netdb.h>
 #include <errno.h>
 #include "util.h"
+#include "host.h"
+#include "ipad.h"
 
-#define BUFFERSIZE 2048
+#define BUFFERSIZE 4096
 
 int open_socket()
 {
@@ -68,53 +70,79 @@ void print_buffer(const unsigned char *buffer, size_t size)
 
 int main(void)
 {
-    int sockfd, s;
+    // about socket
+    int sockfd;
+    // about peer socket
     struct sockaddr_storage peer_addr;
-    socklen_t addr_len;
-    ssize_t readsize;
+    struct sockaddr_in6 *peer_addr6;
+    struct sockaddr_in *peer_addr4;
+    uint32_t uint_ipv4;
+    // char peer_ip[INET6_ADDRSTRLEN];
+    socklen_t peer_slen;
+    // about buffer
+    unsigned char hostlist[BUFFERSIZE];
+    unsigned char hostname[NI_MAXHOST];
     unsigned char buffer[BUFFERSIZE];
-    char peer_ip[INET6_ADDRSTRLEN];
+    const unsigned char *puffer;
+    ssize_t readsize;
     struct dns_header_t *dns_header;
+    // about dns header
+    // open socket
     if (0 > (sockfd = open_socket()))
     {
         fprintf(stderr, "Could not open\n");
         exit(EXIT_FAILURE);
     }
-
+    // query all available hostnames
+    global_hostlist(hostlist, BUFFERSIZE);
+    // wait for messages
     for (;;)
     {
-        addr_len = sizeof(struct sockaddr_storage);
-        readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &addr_len);
-        if (0 > readsize)
+        peer_slen = sizeof(struct sockaddr_storage);
+        readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
+        if (0 > readsize || peer_addr.ss_family != AF_INET)
         {
             continue;
         }
+        // parse dns header
+        dns_header = (struct dns_header_t *)buffer;
+        puffer = buffer + sizeof(struct dns_header_t);
 
-        pull_dns_header(buffer, &dns_header);
-
-        if (dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT)
+        if ((dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT) || 0 == dns_header->QDCOUNT)
         {
-            printf("Got a response message\n");
-            continue; // No interests in response messages
+            printf("Got response message(%ld):\n", readsize);
+            print_buffer(buffer, readsize);
+            continue;
         }
 
-        if (peer_addr.ss_family == AF_INET)
-        {
-            struct sockaddr_in *s = (struct sockaddr_in *)&peer_addr;
-            inet_ntop(AF_INET, &s->sin_addr, peer_ip, sizeof peer_ip);
-        }
-        else
-        {
-            struct sockaddr_in6 *s = (struct sockaddr_in6 *)&peer_addr;
-            inet_ntop(AF_INET6, &s->sin6_addr, peer_ip, sizeof peer_ip);
-        }
-        printf("Got %zd bytes query message from %s\n", readsize, peer_ip);
-
+        printf("Got query message(%ld):\n", readsize);
         print_buffer(buffer, readsize);
-
-        if (sendto(sockfd, buffer, readsize, 0, (struct sockaddr *)&peer_addr, addr_len) != readsize)
+        // TODO: test hostname is matching
+        if (ntohs(*(uint16_t *)buffer) & 0xC000)
         {
-            fprintf(stderr, "Error sending response\n");
+            continue;
         }
+        puffer = pull_hostname(puffer, hostname);
+        if (!(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
+        {
+            printf("Not me: %s\n", hostname);
+            continue;
+        }
+        dns_header->DNSFLAG = DNSFLAG_RESPD_NO_ORROR;
+        dns_header->QDCOUNT = 0;
+        dns_header->ANCOUNT = htons(1);
+        dns_header->NSCOUNT = 0;
+        dns_header->ARCOUNT = 0;
+        *(uint16_t *)(puffer + 2) = htons(0x8001);
+        *(uint32_t *)(puffer + 4) = htonl(0x7080);
+        *(uint16_t *)(puffer + 8) = htons(0x0004);
+        peer_addr4 = (struct sockaddr_in *)&peer_addr;
+        uint_ipv4 = htonl(peer_addr4->sin_addr.s_addr);
+        uint_ipv4 = lookup_ipv4(uint_ipv4);
+        *(uint32_t *)(puffer + 10) = htonl(uint_ipv4);
+
+        sendto(sockfd, buffer, puffer - buffer + 14, 0, (struct sockaddr *)&peer_addr, peer_slen);
+        printf("Send to %s(%ld):\n", hostname, puffer - buffer + 20);
+        print_buffer(buffer, puffer - buffer + 20);
     }
 }

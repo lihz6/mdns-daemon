@@ -1,8 +1,8 @@
 main: main.o
 	./main.o
 
-main.o: main.c util.c util.h
-	gcc main.c util.c util.h -o main.o
+main.o: main.c util.c util.h host.c host.h ipad.c ipad.h
+	gcc main.c util.c util.h host.c host.h ipad.c ipad.h -o main.o
 
 test: test.o
 	./test.o
