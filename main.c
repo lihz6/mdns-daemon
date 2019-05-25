@@ -58,7 +58,8 @@ int open_socket()
 
 void print_buffer(const unsigned char *buffer, size_t size)
 {
-    for (size_t i = 0; i < size; i++)
+    size_t i;
+    for (i = 0; i < size; i++)
     {
         printf(" %02X", buffer[i]);
         if (i % 2)
@@ -66,6 +67,7 @@ void print_buffer(const unsigned char *buffer, size_t size)
             putchar('\n');
         }
     }
+    putchar('\n');
 }
 
 int main(void)
@@ -84,7 +86,7 @@ int main(void)
     unsigned char hostname[NI_MAXHOST];
     unsigned char buffer[BUFFERSIZE];
     const unsigned char *puffer;
-    ssize_t readsize;
+    ssize_t iosize;
     struct dns_header_t *dns_header;
     // about dns header
     // open socket
@@ -96,18 +98,18 @@ int main(void)
     // query all available hostnames
     global_hostlist(hostlist, BUFFERSIZE);
     printf("Respnod for:\n");
-    readsize = 0;
-    while (hostlist[readsize])
+    iosize = 0;
+    while (hostlist[iosize])
     {
-        printf("    %s\n", hostlist + readsize + 1);
-        readsize += hostlist[readsize];
+        printf("    %s\n", hostlist + iosize + 1);
+        iosize += hostlist[iosize];
     }
     // wait for messages
     for (;;)
     {
         peer_slen = sizeof(struct sockaddr_storage);
-        readsize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
-        if (0 > readsize || peer_addr.ss_family != AF_INET)
+        iosize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
+        if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
             continue;
         }
@@ -117,13 +119,13 @@ int main(void)
 
         if ((dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT) || 0 == dns_header->QDCOUNT)
         {
-            printf("Got response message(%ld):\n", readsize);
-            print_buffer(buffer, readsize);
+            printf("Got response message(%ld):\n", iosize);
+            print_buffer(buffer, iosize);
             continue;
         }
 
-        printf("Got query message(%ld):\n", readsize);
-        print_buffer(buffer, readsize);
+        printf("Got query message(%ld):\n", iosize);
+        print_buffer(buffer, iosize);
         // TODO: test hostname is matching
         if (ntohs(*(uint16_t *)buffer) & 0xC000)
         {
@@ -141,16 +143,16 @@ int main(void)
         dns_header->NSCOUNT = 0;
         dns_header->ARCOUNT = 0;
         *(uint16_t *)(puffer + 2) = htons(0x8001);
-        *(uint32_t *)(puffer + 4) = htonl(0x7080);
+        *(uint32_t *)(puffer + 4) = htonl(0x3840); // 4 hours in second
         *(uint16_t *)(puffer + 8) = htons(0x0004);
         peer_addr4 = (struct sockaddr_in *)&peer_addr;
         uint_ipv4 = htonl(peer_addr4->sin_addr.s_addr);
         uint_ipv4 = lookup_ipv4(uint_ipv4);
         *(uint32_t *)(puffer + 10) = htonl(uint_ipv4);
-
-        sendto(sockfd, buffer, puffer - buffer + 14, 0, (struct sockaddr *)&peer_addr, peer_slen);
-        printf("Send to %s(%ld):\n", hostname, puffer - buffer + 20);
-        print_buffer(buffer, puffer - buffer + 20);
+        iosize = puffer - buffer + 14;
+        sendto(sockfd, buffer, iosize, 0, (struct sockaddr *)&peer_addr, peer_slen);
+        printf("Send to %s(%ld):\n", hostname, iosize);
+        print_buffer(buffer, iosize);
     }
 }
 /**
