@@ -9,11 +9,7 @@
 
 bool is_global_hostname(const char *hostname)
 {
-    if (strstr(hostname, "localhost") || strstr(hostname, "loopback") || strstr(hostname, "localdomain"))
-    {
-        return false;
-    }
-    return strchr(hostname, '.') != NULL;
+    return hostname[0] != '_' && strchr(hostname, '.') != NULL && strstr(hostname, "localhost") == NULL && strstr(hostname, "loopback") == NULL && strstr(hostname, "localdomain") == NULL;
 }
 
 char *encode_hostname(char *hostlist, const char *hostname, size_t limitlen)

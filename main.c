@@ -134,7 +134,7 @@ int main(void)
             continue;
         }
         puffer = pull_hostname(puffer, hostname);
-        if (!(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
+        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
         {
             printf("Not me: %s\n", hostname);
             continue;
