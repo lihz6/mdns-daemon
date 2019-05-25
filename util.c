@@ -79,7 +79,7 @@ unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostnam
     }
 }
 
-const unsigned char *pull_hostname(const unsigned char *buffer, unsigned char *hostname)
+unsigned char *pull_hostname(unsigned char *buffer, unsigned char *hostname)
 {
     for (;;)
     {

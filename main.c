@@ -11,7 +11,8 @@
 #include "host.h"
 #include "ipad.h"
 
-#define BUFFERSIZE 4096
+#define BUFFERSIZE 8192
+#define PACKETSIZE 1024
 
 int open_socket()
 {
@@ -84,8 +85,8 @@ int main(void)
     // about buffer
     unsigned char hostlist[BUFFERSIZE];
     unsigned char hostname[NI_MAXHOST];
-    unsigned char buffer[BUFFERSIZE];
-    const unsigned char *puffer;
+    unsigned char *buffer, *puffer;
+    size_t buffersize = 0;
     ssize_t iosize;
     struct dns_header_t *dns_header;
     // about dns header
@@ -96,19 +97,20 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     // query all available hostnames
-    global_hostlist(hostlist, BUFFERSIZE);
+    global_hostlist(hostlist, BUFFERSIZE - PACKETSIZE);
     printf("Respnod for:\n");
-    iosize = 0;
-    while (hostlist[iosize])
+    while (hostlist[buffersize])
     {
-        printf("    %s\n", hostlist + iosize + 1);
-        iosize += hostlist[iosize];
+        printf("    %s\n", hostlist + buffersize + 1);
+        buffersize += hostlist[buffersize];
     }
+    buffer = hostlist + buffersize + 1;
+    buffersize = BUFFERSIZE - buffersize - 1;
     // wait for messages
     for (;;)
     {
         peer_slen = sizeof(struct sockaddr_storage);
-        iosize = recvfrom(sockfd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
+        iosize = recvfrom(sockfd, buffer, buffersize, 0, (struct sockaddr *)&peer_addr, &peer_slen);
         if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
             continue;

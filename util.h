@@ -67,7 +67,7 @@ extern size_t offset_hostname(const unsigned char *buffer);
 extern unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostname);
 
 // "\3www\6ngolin\3com"  -> "www.ngolin.com"
-extern const unsigned char *pull_hostname(const unsigned char *buffer, unsigned char *hostname);
+extern unsigned char *pull_hostname(unsigned char *buffer, unsigned char *hostname);
 
 extern unsigned char *push_question(unsigned char *buffer, uint16_t QTYPE);
 #endif

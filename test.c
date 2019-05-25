@@ -60,9 +60,7 @@ void void_test_hostlist(void)
 
 int main(void)
 {
-    char *puffer = "\0\1\3\4\4";
-    if (*(uint16_t *)puffer & htons(0x0001))
-    {
-        printf("yes: %d\n", ntohs(*(uint16_t *)puffer & htons(0x0001)));
-    }
+    int a = 1;
+    int b = a + ++a;
+    printf("%d, %d\n", a, b);
 }
