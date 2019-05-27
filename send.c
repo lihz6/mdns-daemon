@@ -32,7 +32,7 @@ int main(void)
                                     "\x00\x00"
                                     "\x00\x00"
                                     "\x00\x00"
-                                    "\x06\x67\x69\x74\x6c\x61\x62\x05\x6c\x6f\x63\x61\x6c\x00"
+                                    "\x04\x6c\x69\x68\x7a\x05\x6c\x6f\x63\x61\x6c\x00"
                                     "\x00\x01"
                                     "\x00\x01";
     struct sockaddr_in sock_addr;

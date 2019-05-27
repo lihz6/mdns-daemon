@@ -113,6 +113,7 @@ int main(void)
         iosize = recvfrom(sockfd, buffer, buffersize, 0, (struct sockaddr *)&peer_addr, &peer_slen);
         if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
+            printf("Got IPv6 message\n");
             continue;
         }
         // parse dns header
@@ -121,13 +122,11 @@ int main(void)
 
         if ((dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT) || 0 == dns_header->QDCOUNT)
         {
-            printf("Got response message(%ld):\n", iosize);
-            print_buffer(buffer, iosize);
+            printf("Got response message(%ld)\n", iosize);
             continue;
         }
 
-        printf("Got query message(%ld):\n", iosize);
-        print_buffer(buffer, iosize);
+        printf("Got query message(%ld)\n", iosize);
         // TODO: test hostname is matching
         if (ntohs(*(uint16_t *)buffer) & 0xC000)
         {
@@ -153,8 +152,7 @@ int main(void)
         *(uint32_t *)(puffer + 10) = htonl(uint_ipv4);
         iosize = puffer - buffer + 14;
         sendto(sockfd, buffer, iosize, 0, (struct sockaddr *)&peer_addr, peer_slen);
-        printf("Send to %s(%ld):\n", hostname, iosize);
-        print_buffer(buffer, iosize);
+        printf("Send to %s(%ld)\n", hostname, iosize);
     }
 }
 /**
