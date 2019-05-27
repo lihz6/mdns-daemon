@@ -60,7 +60,6 @@ void void_test_hostlist(void)
 
 int main(void)
 {
-    int a = 1;
-    int b = a + ++a;
-    printf("%d, %d\n", a, b);
+    uint32_t a = -1;
+    printf("%x\n", a);
 }
