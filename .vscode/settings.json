@@ -1,11 +1,7 @@
 {
     "files.exclude": {
-        "**/*.o": true,
-        ".gitignore": true,
-        ".vscode": true,
-        "Makefile": true
-    },
-    "files.associations": {
-        "host.h": "c"
+        "bin": true,
+        "out": true,
+        ".*": true
     }
 }

@@ -11,8 +11,8 @@
 #include "host.h"
 #include "ipad.h"
 
-#define BUFFERSIZE 8192
-#define PACKETSIZE 1024
+#define BUFFERSIZE 4096
+#define PACKETSIZE 512
 
 int open_socket()
 {
@@ -105,12 +105,11 @@ int main(void)
         buffersize += hostlist[buffersize];
     }
     buffer = hostlist + buffersize + 1;
-    buffersize = BUFFERSIZE - buffersize - 1;
     // wait for messages
     for (;;)
     {
         peer_slen = sizeof(struct sockaddr_storage);
-        iosize = recvfrom(sockfd, buffer, buffersize, 0, (struct sockaddr *)&peer_addr, &peer_slen);
+        iosize = recvfrom(sockfd, buffer, PACKETSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
         if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
             printf("Got IPv6 message\n");
@@ -155,39 +154,3 @@ int main(void)
         printf("Send to %s(%ld)\n", hostname, iosize);
     }
 }
-/**
- 00 00
- 84 00
- 00 00
- 00 02
- 00 00
- 00 00
- 06 6C
- 61 77
- 79 6F
- 6F 05
- 6C 6F
- 63 61
- 6C 00
- 00 1C
- 80 01
- 00 00
- 00 78
- 00 10
- FE 80
- 00 00
- 00 00
- 00 00
- 6F 74
- D7 18
- 1B 7D
- C3 13
- C0 0C
- 00 01
- 80 01
- 00 00
- 00 78
- 00 04
- C0 A8
- 00 7D
-*/

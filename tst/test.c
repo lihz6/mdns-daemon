@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <netdb.h>
-#include "host.h"
+#include "../src/host.h"
 
 void query_ips(void)
 {
