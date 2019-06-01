@@ -77,7 +77,7 @@ int main(void)
     int sockfd;
     // about peer socket
     struct sockaddr_storage peer_addr;
-    struct sockaddr_in6 *peer_addr6;
+    // struct sockaddr_in6 *peer_addr6;
     struct sockaddr_in *peer_addr4;
     uint32_t uint_ipv4;
     // char peer_ip[INET6_ADDRSTRLEN];
@@ -97,7 +97,7 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     // query all available hostnames
-    global_hostlist(hostlist, BUFFERSIZE - PACKETSIZE);
+    global_hostlist((char *)hostlist, BUFFERSIZE - PACKETSIZE);
     printf("Respnod for:\n");
     while (hostlist[buffersize])
     {
@@ -132,7 +132,7 @@ int main(void)
             continue;
         }
         puffer = pull_hostname(puffer, hostname);
-        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
+        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname((char *)hostlist, (char *)hostname))
         {
             printf("Not me: %s\n", hostname);
             continue;

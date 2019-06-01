@@ -33,7 +33,7 @@ void global_hostlist(char *hostlist, const size_t listsize)
     struct hostent *hent;
     inet_pton(AF_INET, "127.0.0.1", addr);
     sethostent(true);
-    while (hent = gethostent())
+    while ((hent = gethostent()))
     {
         if (hent->h_addrtype != AF_INET || strcmp(hent->h_addr, addr))
         {
@@ -46,10 +46,10 @@ void global_hostlist(char *hostlist, const size_t listsize)
             {
                 hostlist = encode_hostname(hostlist, h_name, MIN(pinpoint - hostlist, 128));
             }
-        } while (h_name = *hent->h_aliases++);
+        } while ((h_name = *hent->h_aliases++));
     }
     endhostent();
-    if (pinpoint - hostlist == listsize - 1)
+    if ((size_t)(pinpoint - hostlist) == listsize - 1)
     {
         gethostname(hostlist + 1, listsize - 1);
         hostlist = encode_hostname(hostlist, strcat(hostlist + 1, ".local"), MIN(pinpoint - hostlist, 128));
