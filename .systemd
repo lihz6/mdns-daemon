@@ -1,0 +1,15 @@
+[Unit]
+Description=Avahi mDNS Server
+
+
+[Service]
+ExecStart=/usr/local/bin/mdns-daemon
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=mdns-daemon
+
+
+[Install]
+WantedBy=multi-user.target
