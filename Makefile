@@ -3,8 +3,6 @@
 BIN_NAME := mdns-daemon
 # Compiler used
 CC ?= gcc
-# Extension of source files used in the project
-SRC_EXT = c
 # Path to the source directory, relative to the makefile
 SRC_PATH = src
 # Space-separated pkg-config libraries used by this project
@@ -34,9 +32,6 @@ INSTALL_PREFIX = usr/local
 # include config.mk
 
 # Generally should not need to edit below this line
-
-# Obtains the OS type, either 'Darwin' (OS X) or 'Linux'
-UNAME_S:=$(shell uname -s)
 
 # Function used to check variables. Use on the command line:
 # make print-VARNAME
@@ -81,75 +76,28 @@ install: export BIN_PATH := bin/release
 
 # Find all source files in the source directory, sorted by most
 # recently modified
-ifeq ($(UNAME_S),Darwin)
-	SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' | sort -k 1nr | cut -f2-)
-else
-	SOURCES = $(shell find $(SRC_PATH) -name '*.$(SRC_EXT)' -printf '%T@\t%p\n' \
-						| sort -k 1nr | cut -f2-)
-endif
 
-# fallback in case the above fails
-rwildcard = $(foreach d, $(wildcard $1*), $(call rwildcard,$d/,$2) \
-						$(filter $(subst *,%,$2), $d))
-ifeq ($(SOURCES),)
-	SOURCES := $(call rwildcard, $(SRC_PATH), *.$(SRC_EXT))
-endif
+SOURCES = $(shell find $(SRC_PATH) -name '*.c' -printf '%T@\t%p\n' | sort -k 1nr | cut -f2-)
 
 # Set the object file names, with the source directory stripped
 # from the path, and the build path prepended in its place
-OBJECTS = $(SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/%.o)
+OBJECTS = $(SOURCES:$(SRC_PATH)/%.c=$(BUILD_PATH)/%.o)
 # Set the dependency files that will be used to add header dependencies
 DEPS = $(OBJECTS:.o=.d)
 
 # Macros for timing compilation
-ifeq ($(UNAME_S),Darwin)
-	CUR_TIME = awk 'BEGIN{srand(); print srand()}'
-	TIME_FILE = $(dir $@).$(notdir $@)_time
-	START_TIME = $(CUR_TIME) > $(TIME_FILE)
-	END_TIME = read st < $(TIME_FILE) ; \
-		$(RM) $(TIME_FILE) ; \
-		st=$$((`$(CUR_TIME)` - $$st)) ; \
-		echo $$st
-else
-	TIME_FILE = $(dir $@).$(notdir $@)_time
-	START_TIME = date '+%s' > $(TIME_FILE)
-	END_TIME = read st < $(TIME_FILE) ; \
-		$(RM) $(TIME_FILE) ; \
-		st=$$((`date '+%s'` - $$st - 86400)) ; \
-		echo `date -u -d @$$st '+%H:%M:%S'`
-endif
+TIME_FILE = $(dir $@).$(notdir $@)_time
+START_TIME = date '+%s' > $(TIME_FILE)
+END_TIME = read st < $(TIME_FILE) ; \
+	$(RM) $(TIME_FILE) ; \
+	st=$$((`date '+%s'` - $$st - 86400)) ; \
+	echo `date -u -d @$$st '+%H:%M:%S'`
 
-# Version macros
-# Comment/remove this section to remove versioning
-USE_VERSION := false
-# If this isn't a git repo or the repo has no tags, git describe will return non-zero
-ifeq ($(shell git describe > /dev/null 2>&1 ; echo $$?), 0)
-	USE_VERSION := true
-	VERSION := $(shell git describe --tags --long --dirty --always | \
-		sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)-\?.*-\([0-9]*\)-\(.*\)/\1 \2 \3 \4 \5/g')
-	VERSION_MAJOR := $(word 1, $(VERSION))
-	VERSION_MINOR := $(word 2, $(VERSION))
-	VERSION_PATCH := $(word 3, $(VERSION))
-	VERSION_REVISION := $(word 4, $(VERSION))
-	VERSION_HASH := $(word 5, $(VERSION))
-	VERSION_STRING := \
-		"$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH).$(VERSION_REVISION)-$(VERSION_HASH)"
-	override CFLAGS := $(CFLAGS) \
-		-D VERSION_MAJOR=$(VERSION_MAJOR) \
-		-D VERSION_MINOR=$(VERSION_MINOR) \
-		-D VERSION_PATCH=$(VERSION_PATCH) \
-		-D VERSION_REVISION=$(VERSION_REVISION) \
-		-D VERSION_HASH=\"$(VERSION_HASH)\"
-endif
 
 # Standard, non-optimized release build
 .PHONY: release
 release: dirs
-ifeq ($(USE_VERSION), true)
-	@echo "Beginning release build v$(VERSION_STRING)"
-else
 	@echo "Beginning release build"
-endif
 	@$(START_TIME)
 	@$(MAKE) all --no-print-directory
 	@echo -n "Total build time: "
@@ -158,11 +106,7 @@ endif
 # Debug build for gdb debugging
 .PHONY: debug
 debug: dirs
-ifeq ($(USE_VERSION), true)
-	@echo "Beginning debug build v$(VERSION_STRING)"
-else
 	@echo "Beginning debug build"
-endif
 	@$(START_TIME)
 	@$(MAKE) all --no-print-directory
 	@echo -n "Total build time: "
@@ -216,7 +160,7 @@ $(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
 # Source file rules
 # After the first compilation they will be joined with the rules from the
 # dependency files to provide header dependencies
-$(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(SRC_EXT)
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c
 	@echo "Compiling: $< -> $@"
 	@$(START_TIME)
 	$(CMD_PREFIX)$(CC) $(CFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
