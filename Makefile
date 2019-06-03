@@ -124,12 +124,20 @@ dirs:
 install:
 	@echo "Installing to $(DESTDIR)$(INSTALL_PREFIX)/bin"
 	@$(INSTALL_PROGRAM) $(BIN_PATH)/$(BIN_NAME) $(DESTDIR)$(INSTALL_PREFIX)/bin
+	@cp .systemd /etc/systemd/system/$(BIN_NAME).service
+	@systemctl daemon-reload
+	@systemctl enable $(BIN_NAME).service
+	@systemctl start $(BIN_NAME).service
 
 # Uninstalls the program
 .PHONY: uninstall
 uninstall:
 	@echo "Removing $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)"
 	@$(RM) $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)
+	@systemctl disable $(BIN_NAME).service
+	@systemctl stop $(BIN_NAME).service
+	@$(RM) /etc/systemd/system/$(BIN_NAME).service
+	@systemctl daemon-reload
 
 # Removes all build files
 .PHONY: clean
