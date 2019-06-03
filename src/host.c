@@ -8,7 +8,7 @@
 #include <netdb.h>
 #include "host.h"
 
-bool is_global_hostname(const char *hostname)
+bool is_hostname(const char *hostname)
 {
     return hostname[0] != '_' && strchr(hostname, '.') != NULL && strstr(hostname, "localhost") == NULL && strstr(hostname, "loopback") == NULL && strstr(hostname, "localdomain") == NULL;
 }
@@ -32,7 +32,7 @@ unsigned char *encode_hostname(unsigned char *hostlist, const char *hostname, si
     return position;
 }
 
-void global_hostlist(unsigned char *hostlist, const size_t listsize)
+void loadup_hostlist(unsigned char *hostlist, const size_t listsize)
 {
     const unsigned char *pinpoint = hostlist + listsize - 1;
     char addr[INET_ADDRSTRLEN], *h_name;
@@ -48,7 +48,7 @@ void global_hostlist(unsigned char *hostlist, const size_t listsize)
         h_name = hent->h_name;
         do
         {
-            if (is_global_hostname(h_name))
+            if (is_hostname(h_name))
             {
                 hostlist = encode_hostname(hostlist, h_name, MIN(pinpoint - hostlist, 128));
             }
