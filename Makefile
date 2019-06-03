@@ -132,12 +132,12 @@ install:
 # Uninstalls the program
 .PHONY: uninstall
 uninstall:
-	@echo "Removing $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)"
-	@$(RM) $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)
-	@systemctl disable $(BIN_NAME).service
-	@systemctl stop $(BIN_NAME).service
-	@$(RM) /etc/systemd/system/$(BIN_NAME).service
-	@systemctl daemon-reload
+	-@echo "Removing $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)"
+	-@$(RM) $(DESTDIR)$(INSTALL_PREFIX)/bin/$(BIN_NAME)
+	-@systemctl disable $(BIN_NAME).service
+	-@systemctl stop $(BIN_NAME).service
+	-@$(RM) /etc/systemd/system/$(BIN_NAME).service
+	-@systemctl daemon-reload
 
 # Removes all build files
 .PHONY: clean
@@ -145,7 +145,7 @@ clean:
 	@echo "Deleting $(BIN_NAME) symlink"
 	@$(RM) $(BIN_NAME)
 	@echo "Deleting directories"
-	@$(RM) -r build
+	@$(RM) -r out
 	@$(RM) -r bin
 
 # Main rule, checks the executable and symlinks to the output

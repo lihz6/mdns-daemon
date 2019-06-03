@@ -84,7 +84,7 @@ int main(void)
     socklen_t peer_slen;
     // about buffer
     unsigned char hostlist[BUFFERSIZE];
-    unsigned char hostname[NI_MAXHOST];
+    char hostname[NI_MAXHOST];
     unsigned char *buffer, *puffer;
     size_t buffersize = 0;
     ssize_t iosize;
@@ -97,7 +97,7 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     // query all available hostnames
-    global_hostlist((char *)hostlist, BUFFERSIZE - PACKETSIZE);
+    global_hostlist(hostlist, BUFFERSIZE - PACKETSIZE);
     printf("Respnod for:\n");
     while (hostlist[buffersize])
     {
@@ -132,7 +132,7 @@ int main(void)
             continue;
         }
         puffer = pull_hostname(puffer, hostname);
-        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname((char *)hostlist, (char *)hostname))
+        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
         {
             printf("Not me: %s\n", hostname);
             continue;

@@ -64,10 +64,10 @@ extern unsigned char *push_dns_header(unsigned char *buffer, const struct dns_he
 extern size_t offset_hostname(const unsigned char *buffer);
 
 // "www.ngolin.com" -> "\3www\6ngolin\3com"
-extern unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostname);
+extern unsigned char *push_hostname(unsigned char *buffer, const char *hostname);
 
 // "\3www\6ngolin\3com"  -> "www.ngolin.com"
-extern unsigned char *pull_hostname(unsigned char *buffer, unsigned char *hostname);
+extern unsigned char *pull_hostname(unsigned char *buffer, char *hostname);
 
 extern unsigned char *push_question(unsigned char *buffer, uint16_t QTYPE);
 #endif

@@ -62,7 +62,7 @@ size_t offset_hostname(const unsigned char *buffer)
     return 0;
 }
 
-unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostname)
+unsigned char *push_hostname(unsigned char *buffer, const char *hostname)
 {
     unsigned char *position = buffer++;
     for (;;)
@@ -79,7 +79,7 @@ unsigned char *push_hostname(unsigned char *buffer, const unsigned char *hostnam
     }
 }
 
-unsigned char *pull_hostname(unsigned char *buffer, unsigned char *hostname)
+unsigned char *pull_hostname(unsigned char *buffer, char *hostname)
 {
     for (;;)
     {
