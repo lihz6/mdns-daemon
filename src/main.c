@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <netdb.h>
 #include <errno.h>
-#include "util.h"
+#include "mdns.h"
 #include "host.h"
 #include "ipad.h"
 
@@ -126,11 +126,12 @@ int main(void)
 
         printf("Got query message(%ld)\n", iosize);
         // TODO: test hostname is matching
-        if (ntohs(*(uint16_t *)buffer) & 0xC000)
+        puffer = buffer + sizeof(struct dns_header_t);
+        if (ntohs(*(uint16_t *)puffer) & 0xC000)
         {
             continue;
         }
-        puffer = pull_hostname(buffer + sizeof(struct dns_header_t), hostname);
+        puffer = pull_hostname(puffer, hostname);
         if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
         {
             printf("Not me: %s\n", hostname);
