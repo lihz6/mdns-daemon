@@ -5,7 +5,6 @@
 #include <stdbool.h>
 
 // DNS header structure
-// #pragma pack(push, 1)
 struct dns_header_t
 {
     // default 0
@@ -37,6 +36,7 @@ struct dns_header_t
     uint16_t ARCOUNT; // number of resource entries
 };
 
+#pragma pack(push, 1)
 struct answer_t
 {
 #define TYPE_AAAA htons(0x001C)
@@ -51,7 +51,7 @@ struct answer_t
 #define RDLENGTH_IPv6 htons(0x0010)
     uint16_t RDLENGTH;
 };
-// #pragma(pop)
+#pragma pack(pop)
 
 extern unsigned char *push_dns_header(unsigned char *buffer);
 
