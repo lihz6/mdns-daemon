@@ -89,6 +89,7 @@ int main(void)
     size_t buffersize = 0;
     ssize_t iosize;
     struct dns_header_t *dns_header;
+    struct answer_t *answer;
     // about dns header
     // open socket
     if (0 > (sockfd = open_socket()))
@@ -118,7 +119,7 @@ int main(void)
         // parse dns header
         dns_header = (struct dns_header_t *)buffer;
 
-        if ((dns_header->DNSFLAG & DNSFLAG_RESPD_MESSAGE_BIT) || 0 == dns_header->QDCOUNT)
+        if (IS_DNSFLAG_RESPD(dns_header->DNSFLAG) || 0 == dns_header->QDCOUNT)
         {
             printf("Got response message(%ld)\n", iosize);
             continue;
@@ -127,29 +128,30 @@ int main(void)
         printf("Got query message(%ld)\n", iosize);
         // TODO: test hostname is matching
         puffer = buffer + sizeof(struct dns_header_t);
-        if (ntohs(*(uint16_t *)puffer) & 0xC000)
+        if (offset_hostname(puffer))
         {
             continue;
         }
         puffer = pull_hostname(puffer, hostname);
-        if (hostname[0] == '_' || !(*(uint16_t *)puffer & QTYPE_A) || !lookup_hostname(hostlist, hostname))
+        answer = (struct answer_t *)puffer;
+        if (hostname[0] == '_' || answer->TYPE != TYPE_A || !lookup_hostname(hostlist, hostname))
         {
             printf("Not me: %s\n", hostname);
             continue;
         }
         dns_header->DNSFLAG = DNSFLAG_RESPD_NO_ORROR;
         dns_header->QDCOUNT = 0;
-        dns_header->ANCOUNT = htons(1);
+        dns_header->ANCOUNT = ENCOUNT(1);
         dns_header->NSCOUNT = 0;
         dns_header->ARCOUNT = 0;
-        *(uint16_t *)(puffer + 2) = htons(0x8001);
-        *(uint32_t *)(puffer + 4) = htonl(0x3840); // 4 hours in second
-        *(uint16_t *)(puffer + 8) = htons(0x0004);
+        answer->CLASS = ACLASS_IN;
+        answer->TTL = TTL_4_HOURS;
+        answer->RDLENGTH = RDLENGTH_IPv4;
         peer_addr4 = (struct sockaddr_in *)&peer_addr;
         uint_ipv4 = htonl(peer_addr4->sin_addr.s_addr);
         uint_ipv4 = lookup_ipv4(uint_ipv4);
-        *(uint32_t *)(puffer + 10) = htonl(uint_ipv4);
-        iosize = puffer - buffer + 14;
+        *(uint32_t *)(puffer + sizeof(struct answer_t)) = htonl(uint_ipv4);
+        iosize = puffer - buffer + sizeof(struct answer_t) + sizeof(uint32_t);
         sendto(sockfd, buffer, iosize, 0, (struct sockaddr *)&peer_addr, peer_slen);
         printf("Send to %s(%ld)\n", hostname, iosize);
     }

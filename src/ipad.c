@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <netdb.h>
 #include <stdio.h>
+#include "ipad.h"
 
 uint32_t lookup_ipv4(uint32_t peerip)
 {
