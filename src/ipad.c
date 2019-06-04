@@ -10,7 +10,7 @@
 uint32_t lookup_ipv4(uint32_t peerip)
 {
     char host[NI_MAXHOST], *h_addr4;
-    uint32_t ipaddr, flagip = 0;
+    uint32_t ipaddr, flagip = ~peerip;
     struct hostent *hent4;
     gethostname(host, NI_MAXHOST);
     hent4 = gethostbyname2(host, AF_INET);
