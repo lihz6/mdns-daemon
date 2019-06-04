@@ -47,6 +47,7 @@ int open_socket()
         fprintf(stderr, "Could not bind\n");
         return -1;
     }
+    // TODO: join IPv6 membership
     mreq.imr_multiaddr.s_addr = inet_addr("224.0.0.251");
     mreq.imr_interface.s_addr = htonl(INADDR_ANY);
     if (0 > setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)))
@@ -113,6 +114,7 @@ int main(void)
         iosize = recvfrom(sockfd, buffer, PACKETSIZE, 0, (struct sockaddr *)&peer_addr, &peer_slen);
         if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
+            // TODO: join IPv6 membership
             printf("Got IPv6 message\n");
             continue;
         }
@@ -124,18 +126,18 @@ int main(void)
             printf("Got response message(%ld)\n", iosize);
             continue;
         }
-
         printf("Got query message(%ld)\n", iosize);
-        // TODO: test hostname is matching
         puffer = buffer + sizeof(struct dns_header_t);
         if (offset_hostname(puffer))
         {
+            // TODO: answer questions when QDCOUNT > 1
             continue;
         }
         puffer = pull_hostname(puffer, hostname);
         answer = (struct answer_t *)puffer;
         if (hostname[0] == '_' || answer->TYPE != TYPE_A || !lookup_hostname(hostlist, hostname))
         {
+            // TODO: answer IPv6 query
             printf("Not me: %s\n", hostname);
             continue;
         }
