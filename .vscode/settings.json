@@ -3,5 +3,10 @@
         "bin": true,
         "out": true,
         ".*": true
+    },
+    "files.associations": {
+        "netdb.h": "c",
+        "in.h": "c",
+        "inet.h": "c"
     }
 }
