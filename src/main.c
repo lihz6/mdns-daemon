@@ -21,7 +21,7 @@ int main(void)
     struct sockaddr_storage peer_addr;
     // struct sockaddr_in6 *peer_addr6;
     struct sockaddr_in *peer_addr4;
-    uint32_t uint_ipv4;
+    ipv4_t uint_ipv4;
     // char peer_ip[INET6_ADDRSTRLEN];
     socklen_t peer_slen;
     // about buffer
@@ -56,7 +56,7 @@ int main(void)
         if (0 > iosize || peer_addr.ss_family != AF_INET)
         {
             // TODO: join IPv6 membership
-            printf("Got IPv6 message\n");
+            // printf("Got IPv6 message\n");
             continue;
         }
         // parse dns header
@@ -64,20 +64,20 @@ int main(void)
 
         if (IS_DNSFLAG_RESPD(dns_header->DNSFLAG) || 0 == dns_header->QDCOUNT)
         {
-            pull_hostname(buffer + 12, hostname);
-            if (!strstr(hostname, "._"))
-            {
-                printf("\n\nGot respn for %s\n", hostname);
-                print_buffer(buffer, iosize);
-            }
+            // pull_hostname(buffer + 12, hostname);
+            // if (!strstr(hostname, "._"))
+            // {
+            //     printf("\n\nGot respn for %s\n", hostname);
+            //     print_buffer(buffer, iosize);
+            // }
             continue;
         }
-        pull_hostname(buffer + 12, hostname);
-        if (!strstr(hostname, "._"))
-        {
-            printf("\n\nGot query for %s\n", hostname);
-            print_buffer(buffer, iosize);
-        }
+        // pull_hostname(buffer + 12, hostname);
+        // if (!strstr(hostname, "._"))
+        // {
+        //     printf("\n\nGot query for %s\n", hostname);
+        //     print_buffer(buffer, iosize);
+        // }
         puffer = buffer + sizeof(struct dns_header_t);
         if (offset_hostname(puffer))
         {
@@ -86,7 +86,7 @@ int main(void)
         }
         puffer = pull_hostname(puffer, hostname);
         answer = (struct answer_t *)puffer;
-        if (hostname[0] == '_' || answer->TYPE != TYPE_A || !lookup_hostname(hostlist, hostname))
+        if (strstr(hostname, "._") || !lookup_hostname(hostlist, hostname))
         {
             // TODO: answer IPv6 query
             // printf("Not me: %s\n", hostname);
@@ -99,12 +99,27 @@ int main(void)
         dns_header->ARCOUNT = 0;
         // answer->CLASS = ACLASS_IN;
         answer->TTL = TTL_4_HOURS;
-        answer->RDLENGTH = RDLENGTH_IPv4;
-        peer_addr4 = (struct sockaddr_in *)&peer_addr;
-        uint_ipv4 = htonl(peer_addr4->sin_addr.s_addr);
-        uint_ipv4 = lookup_ipv4(uint_ipv4);
-        *(uint32_t *)(puffer + sizeof(struct answer_t)) = htonl(uint_ipv4);
-        iosize = puffer - buffer + sizeof(struct answer_t) + sizeof(uint32_t);
+        if (answer->TYPE == TYPE_A)
+        {
+            // answer->TYPE = TYPE_A;
+            answer->RDLENGTH = RDLENGTH_IPv4;
+            peer_addr4 = (struct sockaddr_in *)&peer_addr;
+            uint_ipv4 = htonl(peer_addr4->sin_addr.s_addr);
+            uint_ipv4 = lookup_ipv4(uint_ipv4);
+            *(ipv4_t *)(puffer + sizeof(struct answer_t)) = htonl(uint_ipv4);
+            iosize = puffer - buffer + sizeof(struct answer_t) + sizeof(ipv4_t);
+        }
+        else if (answer->TYPE == TYPE_AAAA)
+        {
+            // answer->TYPE = TYPE_AAAA;
+            answer->RDLENGTH = RDLENGTH_IPv6;
+            memcpy(puffer + sizeof(struct answer_t), lookup_ipv6(), sizeof(ipv6_t));
+            iosize = puffer - buffer + sizeof(struct answer_t) + sizeof(ipv6_t);
+        }
+        else
+        {
+            continue;
+        }
         sendto(sockfd, buffer, iosize, 0, (struct sockaddr *)&peer_addr, peer_slen);
         printf("\n\nSend to %s\n", hostname);
         print_buffer(buffer, iosize);

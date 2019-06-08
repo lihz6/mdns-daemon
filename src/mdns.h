@@ -53,6 +53,9 @@ struct answer_t
 };
 #pragma pack(pop)
 
+typedef uint32_t ipv4_t;
+typedef char ipv6_t[16];
+
 extern unsigned char *push_dns_header(unsigned char *buffer);
 
 // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
